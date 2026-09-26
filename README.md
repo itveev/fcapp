@@ -159,7 +159,7 @@ The core editor is implemented. The following are outside that scope:
 - Interactive edge creation and reconnection
 - Dynamic collision avoidance or a full automatic re-layout after edits
 - Permanent backend file upload
-- Undo/redo, which the assessment lists as a nice-to-have
+- Undo/redo is intentionally left as a nice-to-have. A robust implementation would require defining user-level transaction boundaries (for example, drag completion or form save), atomically capturing all affected domain state for compound operations such as Business Hours creation/deletion, and defining how history interacts with persistence. I would model this as a transaction/history layer around domain actions rather than recording individual Pinia mutations or Vue Flow events.
 
 ## Tech stack
 
