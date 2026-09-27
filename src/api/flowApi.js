@@ -1,18 +1,14 @@
 let records = []
 
-function clone(value) {
-  return structuredClone(value)
-}
-
 export function resetFlowApi(seed) {
-  records = clone(seed)
+  records = structuredClone(seed)
 }
 
 export function fetchFlow() {
-  return Promise.resolve(clone(records))
+  return Promise.resolve(structuredClone(records))
 }
 
 export function saveFlow(payload) {
-  records = clone(payload)
-  return Promise.resolve(clone(records))
+  records = structuredClone(payload)
+  return Promise.resolve(structuredClone(records))
 }
