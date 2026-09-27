@@ -59,4 +59,11 @@ describe('normalizeNode', () => {
   it('fills a title when name is missing', () => {
     expect(normalizeNode({ id: 1, parentId: -1, type: 'trigger', data: { type: 'conversationOpened' } }).title).toBe('Trigger')
   })
+
+  it('keeps an unknown type and a dateTime that is not business hours', () => {
+    const unknown = normalizeNode({ id: 'x', parentId: null, type: 'custom' })
+    expect(unknown).toMatchObject({ type: 'custom', title: 'Node', data: {} })
+    expect(serializeNodes([unknown])[0]).toMatchObject({ type: 'custom', parentId: -1, data: {}, name: 'Node' })
+    expect(normalizeNode({ id: 't', type: 'dateTime', data: {} }).type).toBe('dateTime')
+  })
 })

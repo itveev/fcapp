@@ -1,5 +1,3 @@
-import { truncate } from './truncate'
-
 export const USER_NODE_TYPES = ['sendMessage', 'addComment', 'businessHours']
 
 const METADATA = {
@@ -19,20 +17,25 @@ function triggerLabel(triggerType) {
   return triggerType || ''
 }
 
+const previewByType = {
+  sendMessage(node) {
+    const text = node.data.payload?.find((item) => item.type === 'text' && item.text?.trim())
+    if (text) return text.text.trim()
+    const attachment = node.data.payload?.find((item) => item.type === 'attachment' && item.name)
+    if (attachment) return attachment.name
+    return ''
+  },
+  addComment: (node) => node.data.comment?.trim() || '',
+  businessHours: (node) => `Business Hours - ${node.data.timezone}`,
+  trigger: (node) => triggerLabel(node.data.triggerType),
+}
+
 export function getNodePreview(node) {
   const description = node.description?.trim()
-  if (description) return truncate(description)
-  if (node.type === 'sendMessage') {
-    const text = node.data.payload?.find((item) => item.type === 'text' && item.text?.trim())
-    if (text) return truncate(text.text.trim())
-    const attachment = node.data.payload?.find((item) => item.type === 'attachment' && item.name)
-    if (attachment) return truncate(attachment.name)
-    return ''
-  }
-  if (node.type === 'addComment') return truncate(node.data.comment?.trim() || '')
-  if (node.type === 'businessHours') return truncate(`Business Hours - ${node.data.timezone}`)
-  if (node.type === 'trigger') return truncate(triggerLabel(node.data.triggerType))
-  return ''
+  if (description) return description
+  const preview = previewByType[node.type]
+  if (!preview) return ''
+  return preview(node)
 }
 
 function canvasCapabilities(node) {

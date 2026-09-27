@@ -22,6 +22,8 @@ function handleKeyDown(event) {
   onNodeKeyDown(router, event)
 }
 
+// The drawer narrows the canvas. Recenter only when the active node no longer fits;
+// a node that is already visible keeps the user's viewport.
 function revealNode(nodeId) {
   const node = findNode(nodeId)
   const pane = vueFlowRef.value

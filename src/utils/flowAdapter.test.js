@@ -56,9 +56,51 @@ describe('flow adapter', () => {
     })
   })
 
-  it('prefers a description and otherwise truncates type content', () => {
-    const message = nodes.find((node) => node.id === 'b6a0c1')
-    expect(getNodePreview({ ...message, description: 'x'.repeat(90) }).endsWith('…')).toBe(true)
-    expect(getNodePreview(message)).toContain('currently away')
+})
+
+describe('getNodePreview', () => {
+  it('prefers a description and returns a long one in full', () => {
+    const description = 'x'.repeat(90)
+    expect(getNodePreview({
+      type: 'sendMessage',
+      description,
+      data: { payload: [{ type: 'text', text: 'fallback text' }] },
+    })).toBe(description)
+  })
+
+  it('falls back to message text, then to an attachment name', () => {
+    expect(getNodePreview({
+      type: 'sendMessage',
+      description: '',
+      data: {
+        payload: [
+          { type: 'text', text: '  Hello there  ' },
+          { type: 'attachment', name: 'photo.jpg' },
+        ],
+      },
+    })).toBe('Hello there')
+    expect(getNodePreview({
+      type: 'sendMessage',
+      description: '',
+      data: { payload: [{ type: 'attachment', name: 'photo.jpg' }] },
+    })).toBe('photo.jpg')
+  })
+
+  it('uses the comment, business hours label, and trigger label', () => {
+    expect(getNodePreview({
+      type: 'addComment',
+      description: '',
+      data: { comment: 'Left a note' },
+    })).toBe('Left a note')
+    expect(getNodePreview({
+      type: 'businessHours',
+      description: '',
+      data: { timezone: 'UTC' },
+    })).toBe('Business Hours - UTC')
+    expect(getNodePreview({
+      type: 'trigger',
+      description: '',
+      data: { triggerType: 'conversationOpened' },
+    })).toBe('Conversation Opened')
   })
 })

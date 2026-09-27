@@ -9,19 +9,36 @@ function attachmentName(url) {
   }
 }
 
+// The payload uses dateTime/dateTimeConnector. The domain uses businessHours/branch.
+// A dateTime node is businessHours only when its action says so.
+const domainTypeByApiType = {
+  dateTimeConnector: 'branch',
+}
+
+const apiTypeByDomainType = {
+  businessHours: 'dateTime',
+  branch: 'dateTimeConnector',
+}
+
 function mapType(raw) {
   if (raw.type === 'dateTime' && raw.data?.action === 'businessHours') return 'businessHours'
-  if (raw.type === 'dateTimeConnector') return 'branch'
-  return raw.type
+  return domainTypeByApiType[raw.type] ?? raw.type
+}
+
+function serializeType(node) {
+  return apiTypeByDomainType[node.type] ?? node.type
+}
+
+const defaultTitles = {
+  trigger: 'Trigger',
+  sendMessage: 'Send Message',
+  addComment: 'Add Comment',
+  businessHours: 'Business Hours',
 }
 
 function defaultTitle(type, raw) {
-  if (type === 'trigger') return 'Trigger'
   if (type === 'branch') return raw.data?.connectorType === 'failure' ? 'Failure' : 'Success'
-  if (type === 'sendMessage') return 'Send Message'
-  if (type === 'addComment') return 'Add Comment'
-  if (type === 'businessHours') return 'Business Hours'
-  return 'Node'
+  return defaultTitles[type] ?? 'Node'
 }
 
 function parentIdFromRaw(parentId) {
@@ -57,21 +74,27 @@ function businessHoursData(raw) {
   }
 }
 
+const dataNormalizers = {
+  trigger: (raw) => ({
+    triggerType: raw.data?.type || '',
+    oncePerContact: Boolean(raw.data?.oncePerContact),
+  }),
+  sendMessage: sendMessageData,
+  addComment: (raw) => ({ comment: raw.data?.comment || '' }),
+  businessHours: businessHoursData,
+  branch: (raw) => ({ connectorType: raw.data?.connectorType }),
+}
+
+function normalizeData(type, raw) {
+  const normalize = dataNormalizers[type]
+  if (!normalize) return {}
+  return normalize(raw)
+}
+
 export function normalizeNode(raw) {
   const type = mapType(raw)
   const system = type === 'trigger' || type === 'branch'
-  let data = {}
-  if (type === 'trigger') {
-    data = { triggerType: raw.data?.type || '', oncePerContact: Boolean(raw.data?.oncePerContact) }
-  } else if (type === 'sendMessage') {
-    data = sendMessageData(raw)
-  } else if (type === 'addComment') {
-    data = { comment: raw.data?.comment || '' }
-  } else if (type === 'businessHours') {
-    data = businessHoursData(raw)
-  } else if (type === 'branch') {
-    data = { connectorType: raw.data?.connectorType }
-  }
+  const data = normalizeData(type, raw)
 
   return {
     id: String(raw.id),
@@ -89,6 +112,8 @@ export function normalizeNode(raw) {
   }
 }
 
+// The payload records a Business Hours split twice: branch parentId and data.connectors.
+// Prefer the actual branch children so the domain connectors stay in agreement with the tree.
 function repairConnectors(nodes) {
   const index = buildTreeIndex(nodes)
   return nodes.map((node) => {
@@ -114,41 +139,43 @@ export function normalizeNodes(rawNodes) {
   return repairConnectors(rawNodes.map(normalizeNode))
 }
 
+function serializeSendMessage(node) {
+  const payload = (node.data.payload || []).flatMap((item) => {
+    if (item.type === 'text') return [{ type: 'text', text: item.text || '' }]
+    if (item.type === 'attachment' && item.url) return [{ type: 'attachment', attachment: item.url }]
+    return []
+  })
+  return { payload }
+}
+
+function serializeBusinessHours(node) {
+  return {
+    times: node.data.times.map((row) => ({
+      startTime: row.startTime,
+      endTime: row.endTime,
+      day: row.day,
+    })),
+    connectors: [...node.data.connectors],
+    timezone: node.data.timezone,
+    action: 'businessHours',
+  }
+}
+
+const dataSerializers = {
+  trigger: (node) => ({ type: node.data.triggerType, oncePerContact: node.data.oncePerContact }),
+  sendMessage: serializeSendMessage,
+  addComment: (node) => ({ comment: node.data.comment }),
+  businessHours: serializeBusinessHours,
+  branch: (node) => ({ connectorType: node.data.connectorType }),
+}
+
 function serializeData(node) {
-  if (node.type === 'trigger') {
-    return { type: node.data.triggerType, oncePerContact: node.data.oncePerContact }
-  }
-  if (node.type === 'sendMessage') {
-    const payload = (node.data.payload || []).flatMap((item) => {
-      if (item.type === 'text') return [{ type: 'text', text: item.text || '' }]
-      if (item.type === 'attachment' && item.url) return [{ type: 'attachment', attachment: item.url }]
-      return []
-    })
-    return { payload }
-  }
-  if (node.type === 'addComment') return { comment: node.data.comment }
-  if (node.type === 'businessHours') {
-    return {
-      times: node.data.times.map((row) => ({
-        startTime: row.startTime,
-        endTime: row.endTime,
-        day: row.day,
-      })),
-      connectors: [...node.data.connectors],
-      timezone: node.data.timezone,
-      action: 'businessHours',
-    }
-  }
-  if (node.type === 'branch') return { connectorType: node.data.connectorType }
-  return {}
+  const serialize = dataSerializers[node.type]
+  if (!serialize) return {}
+  return serialize(node)
 }
 
-function serializeType(node) {
-  if (node.type === 'businessHours') return 'dateTime'
-  if (node.type === 'branch') return 'dateTimeConnector'
-  return node.type
-}
-
+// Domain-only fields (system, accessible, readOnly, attachment kind/name) do not go back into the payload.
 export function serializeNodes(nodes) {
   return nodes.map((node) => {
     const payload = {

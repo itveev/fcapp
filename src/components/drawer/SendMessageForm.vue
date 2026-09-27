@@ -9,6 +9,8 @@ const props = defineProps({
   errors: { type: Array, default: () => [] },
 })
 const emit = defineEmits(['update:modelValue'])
+// Local files are previewed through object URLs created by this form.
+// Only those URLs are tracked, so revoking an abandoned one leaves persisted attachments alone.
 const createdUrls = new Set()
 
 function payload() {

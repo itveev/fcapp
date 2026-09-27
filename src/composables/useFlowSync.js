@@ -7,6 +7,8 @@ export function useFlowSync() {
   const store = useFlowStore()
   const query = useFlowQuery()
 
+  // Hydrate the editable domain state once from the server-state cache.
+  // After that, Pinia owns the interactive workflow state.
   watch(
     () => query.data.value,
     (payload) => {

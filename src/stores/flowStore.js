@@ -19,14 +19,17 @@ function branchNode(id, parentId, connectorType) {
   }
 }
 
+const initialDataByType = {
+  sendMessage: () => ({ payload: [{ type: 'text', text: '' }] }),
+  addComment: () => ({ comment: '' }),
+  businessHours: () => ({ timezone: 'UTC', times: defaultBusinessHoursTimes(), connectors: [] }),
+}
+
 function initialData(input) {
   if (input.data) return structuredClone(input.data)
-  if (input.type === 'sendMessage') return { payload: [{ type: 'text', text: '' }] }
-  if (input.type === 'addComment') return { comment: '' }
-  if (input.type === 'businessHours') {
-    return { timezone: 'UTC', times: defaultBusinessHoursTimes(), connectors: [] }
-  }
-  return {}
+  const create = initialDataByType[input.type]
+  if (!create) return {}
+  return create()
 }
 
 export const useFlowStore = defineStore('flow', {
@@ -43,9 +46,6 @@ export const useFlowStore = defineStore('flow', {
     },
     getNode(state) {
       return (id) => state.nodesById[id] ?? null
-    },
-    childrenOf(state) {
-      return (id) => (state.childIdsByParentId[id] || []).map((childId) => state.nodesById[childId])
     },
   },
   actions: {

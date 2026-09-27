@@ -1,7 +1,5 @@
 import { WEEK_DAYS, isValidTime } from './businessHours'
 
-const USER_TYPES = ['sendMessage', 'addComment', 'businessHours']
-
 export function validateTitle(title) {
   const value = typeof title === 'string' ? title.trim() : ''
   if (!value) return [{ field: 'title', code: 'required' }]
@@ -76,35 +74,48 @@ export function validateComment(data) {
   return []
 }
 
+const validatorsByType = {
+  sendMessage: validateSendMessage,
+  addComment: validateComment,
+  businessHours: validateBusinessHours,
+}
+
+function validateDataByType(type, data) {
+  const validate = validatorsByType[type]
+  if (!validate) return []
+  return validate(data)
+}
+
 export function validateNode(node) {
   const errors = [
     ...validateTitle(node?.title),
     ...validateDescription(node?.description),
   ]
-  if (node?.type === 'sendMessage') errors.push(...validateSendMessage(node.data))
-  if (node?.type === 'addComment') errors.push(...validateComment(node.data))
-  if (node?.type === 'businessHours') errors.push(...validateBusinessHours(node.data))
+  errors.push(...validateDataByType(node?.type, node?.data))
   return errors
 }
 
+const validationMessageFormatters = {
+  required: (error) => (error.field === 'title' ? 'Title is required.' : `${error.field} is required.`),
+  maxLength: (error) => `${error.field} is too long.`,
+  range: (error) => `${error.field}: end time must be after start time.`,
+  incomplete: (error) => `${error.field}: enter both start and end.`,
+  timezone: () => 'Time zone is required.',
+  time: (error) => `${error.field}: enter a valid time.`,
+  type: () => 'Choose a node type.',
+}
+
 export function formatValidationError(error) {
-  if (error.code === 'required') return 'Title is required.'
-  if (error.code === 'maxLength') return `${error.field} is too long.`
-  if (error.code === 'range') return `${error.field}: end time must be after start time.`
-  if (error.code === 'incomplete') return `${error.field}: enter both start and end.`
-  if (error.code === 'timezone') return 'Time zone is required.'
-  if (error.code === 'time') return `${error.field}: enter a valid time.`
-  if (error.code === 'type') return 'Choose a node type.'
+  const format = validationMessageFormatters[error.code]
+  if (format) return format(error)
   return `${error.field} ${error.code}`
 }
 
 export function validateCreateInput(input) {
   const errors = []
-  if (!USER_TYPES.includes(input?.type)) errors.push({ field: 'type', code: 'type' })
+  if (!validatorsByType[input?.type]) errors.push({ field: 'type', code: 'type' })
   errors.push(...validateTitle(input?.title))
   errors.push(...validateDescription(input?.description ?? ''))
-  if (input?.data && input?.type === 'sendMessage') errors.push(...validateSendMessage(input.data))
-  if (input?.data && input?.type === 'addComment') errors.push(...validateComment(input.data))
-  if (input?.data && input?.type === 'businessHours') errors.push(...validateBusinessHours(input.data))
+  if (input?.data) errors.push(...validateDataByType(input.type, input.data))
   return errors
 }

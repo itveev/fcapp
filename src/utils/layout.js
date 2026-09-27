@@ -74,6 +74,8 @@ function positionUnderParent(node, parentPosition, index, existingPositions) {
   return { x: Math.round(cursor), y: parentPosition.y + GAP_Y }
 }
 
+// The API payload has no canvas coordinates, so missing positions are derived locally.
+// A node that already has a user position keeps it instead of being laid out again.
 export function calculateInitialPositions(nodes, index, existingPositions = {}) {
   const proposed = layoutTree(index)
   const positions = {}

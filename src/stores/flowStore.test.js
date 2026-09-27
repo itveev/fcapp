@@ -38,7 +38,7 @@ describe('flow store', () => {
     expect(node.parentId).toBeNull()
     expect(store.rootIds).toContain(created.id)
     expect(node.data.connectors).toHaveLength(2)
-    expect(store.childrenOf(created.id).map((child) => child.data.connectorType)).toEqual(['success', 'failure'])
+    expect((store.childIdsByParentId[created.id] || []).map((id) => store.getNode(id).data.connectorType)).toEqual(['success', 'failure'])
   })
 
   it('updates message, comment, and business hours without dropping connectors', () => {

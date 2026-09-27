@@ -18,25 +18,3 @@ export function buildTreeIndex(nodes) {
 
   return { nodesById, childIdsByParentId, rootIds }
 }
-
-export function getNodeChildren(index, id) {
-  return (index.childIdsByParentId[id] || []).map((childId) => index.nodesById[childId])
-}
-
-export function getNodeDescendants(index, id) {
-  const descendants = []
-  const stack = [...(index.childIdsByParentId[id] || [])]
-
-  while (stack.length) {
-    const currentId = stack.pop()
-    const current = index.nodesById[currentId]
-    if (!current) continue
-    descendants.push(current)
-    const children = index.childIdsByParentId[currentId] || []
-    for (let indexChild = children.length - 1; indexChild >= 0; indexChild -= 1) {
-      stack.push(children[indexChild])
-    }
-  }
-
-  return descendants
-}

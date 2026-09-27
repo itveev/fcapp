@@ -1,3 +1,4 @@
+// Cycle through nearby offsets so consecutively created nodes do not overlap.
 const CASCADE = [
   [0, 0],
   [36, 24],
@@ -9,6 +10,8 @@ const CASCADE = [
   [56, 0],
 ]
 
+// Place new root nodes near the current viewport without re-running the graph
+// layout, which would move nodes the user has already positioned manually.
 export function placeNearCenter(center, slot, size = { width: 220, height: 88 }) {
   const index = ((slot % CASCADE.length) + CASCADE.length) % CASCADE.length
   const [dx, dy] = CASCADE[index]
