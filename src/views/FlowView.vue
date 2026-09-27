@@ -81,3 +81,42 @@ async function onDelete() {
     </Transition>
   </div>
 </template>
+
+<style scoped>
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #d9dee7;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.banner {
+  margin: 0;
+  padding: 8px 16px;
+  background: #fff7e8;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+</style>

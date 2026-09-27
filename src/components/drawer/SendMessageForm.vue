@@ -106,3 +106,62 @@ function errorId(error) {
     </p>
   </section>
 </template>
+
+<style scoped>
+.payload-item,
+.file-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.file-picker.is-invalid .button-outline {
+  border-color: var(--danger);
+}
+
+.field-label {
+  font-size: var(--field);
+  font-weight: 600;
+}
+
+.attachment-preview {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: var(--radius);
+  background: #f4f6f8;
+}
+
+.attachment-name {
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.file-input:focus-visible + .button-outline {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+</style>

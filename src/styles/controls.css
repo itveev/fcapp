@@ -1,0 +1,143 @@
+button {
+  border: 1px solid #c9d0da;
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.button-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 14px;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: #b84700;
+}
+
+.button-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+
+.button-ghost:hover {
+  background: #f4f6f8;
+}
+
+.button-danger {
+  border-color: #f0c2cc;
+  background: #fff;
+  color: var(--danger);
+}
+
+.button-danger:hover {
+  background: #fff5f7;
+}
+
+.button-outline {
+  align-self: flex-start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: #1d2430;
+  padding: 4px 10px;
+}
+
+.button-outline:hover {
+  border-color: #c9d0da;
+  background: #f4f6f8;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--field);
+  font-weight: 600;
+}
+
+.field.is-invalid input,
+.field.is-invalid textarea,
+.field.is-invalid select {
+  border-color: var(--danger);
+}
+
+.form-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.type-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.drawer input[type="text"],
+.drawer textarea,
+.drawer select,
+.drawer input[type="time"],
+.modal input[type="text"],
+.modal textarea,
+.modal select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: inherit;
+  font-weight: 400;
+}
+
+.drawer textarea,
+.modal textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.drawer .message-text {
+  width: 100%;
+  min-height: 100px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.drawer input:focus,
+.drawer textarea:focus,
+.drawer select:focus,
+.modal input:focus,
+.modal textarea:focus,
+.modal select:focus {
+  outline: none;
+}
+
+.drawer input:focus-visible,
+.drawer textarea:focus-visible,
+.drawer select:focus-visible,
+.modal input:focus-visible,
+.modal textarea:focus-visible,
+.modal select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.drawer input:disabled,
+.drawer textarea:disabled,
+.drawer select:disabled,
+.drawer button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}

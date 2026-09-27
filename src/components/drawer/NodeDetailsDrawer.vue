@@ -160,3 +160,131 @@ function save() {
   </aside>
   </Transition>
 </template>
+
+<style scoped>
+.drawer {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: min(420px, 42vw);
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+  border-left: 1px solid var(--line);
+}
+
+.drawer-slide,
+.drawer-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.drawer-enter-active .drawer-slide,
+.drawer-leave-active .drawer-slide {
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
+}
+
+.drawer-leave-active .drawer-slide {
+  transition-duration: 140ms;
+}
+
+.drawer-enter-from .drawer-slide,
+.drawer-leave-to .drawer-slide {
+  opacity: 0;
+  transform: translateX(16px);
+}
+
+.drawer-header,
+.drawer-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-header {
+  justify-content: space-between;
+  flex: none;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.drawer-heading,
+.drawer-titles {
+  display: flex;
+  min-width: 0;
+}
+
+.drawer-heading {
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.drawer-titles {
+  flex-direction: column;
+  gap: 2px;
+}
+
+.drawer-header h2 {
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.type-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.drawer-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.drawer-footer {
+  flex: none;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.drawer-footer-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-enter-active .drawer-slide,
+  .drawer-leave-active .drawer-slide {
+    transition: none;
+  }
+}
+</style>

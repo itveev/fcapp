@@ -13,3 +13,12 @@ defineProps({
     <circle v-else cx="12" cy="12" r="4" />
   </svg>
 </template>
+
+<style scoped>
+.node-icon {
+  width: 16px;
+  height: 16px;
+  fill: #d35400;
+  flex: none;
+}
+</style>

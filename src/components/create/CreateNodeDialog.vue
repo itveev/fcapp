@@ -99,3 +99,81 @@ function submit() {
     </form>
   </div>
 </template>
+
+<style scoped>
+.modal-backdrop {
+  position: fixed;
+  z-index: 2;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(16 24 40 / 35%);
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 180ms ease-out;
+}
+
+.modal-leave-active {
+  transition-duration: 140ms;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .modal,
+.modal-leave-active .modal {
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+
+.modal-leave-active .modal {
+  transition-duration: 140ms;
+}
+
+.modal-enter-from .modal,
+.modal-leave-to .modal {
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+}
+
+.modal {
+  display: grid;
+  gap: 16px;
+  width: min(420px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 8px 24px rgb(16 24 40 / 12%);
+}
+
+.modal h2 {
+  margin: 0;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-enter-active,
+  .modal-leave-active,
+  .modal-enter-active .modal,
+  .modal-leave-active .modal {
+    transition: none;
+  }
+}
+</style>

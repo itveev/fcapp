@@ -75,3 +75,14 @@ watch(() => route.params.nodeId, async (nodeId) => {
     </template>
   </VueFlow>
 </template>
+
+<style scoped>
+.flow-canvas {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  background-color: #f4f6f8;
+  background-image: radial-gradient(#d5dbe3 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+</style>

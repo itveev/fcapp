@@ -1,0 +1,19 @@
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  color: #1d2430;
+  background: #f4f6f8;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}

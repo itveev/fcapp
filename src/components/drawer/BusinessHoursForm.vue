@@ -89,3 +89,43 @@ const timezoneOptions = TIMEZONES.includes(props.modelValue.timezone)
     </div>
   </section>
 </template>
+
+<style scoped>
+h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.hours-grid {
+  display: grid;
+  grid-template-columns: minmax(88px, 1.15fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px 10px;
+  align-items: center;
+}
+
+.hours-head {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hours-day {
+  font-size: 14px;
+}
+
+.hours-cell {
+  min-width: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+</style>
