@@ -65,6 +65,8 @@ TanStack Query fetches the workflow and runs save mutations. Pinia holds the nor
 
 These are not two copies of the same state. After the first successful load, the query result is normalized and used to populate the Pinia store. In this project, that initial population is called hydration. It is not server-side rendering hydration. Later saves write back through the mutation and update the query cache. They do not rebuild the Pinia store from scratch.
 
+Graph state: After structural CRUD operations, derived graph indexes (nodesById, childIdsByParentId, and rootIds) are rebuilt from the node list to keep them consistent. Given the small workflow size, this favors correctness and simplicity over incremental index updates; for significantly larger or high-frequency graphs, these indexes could be updated incrementally.
+
 ### Normalization and serialization
 
 Normalization turns the API payload into the internal domain model. Serialization turns that model back into the API payload.
