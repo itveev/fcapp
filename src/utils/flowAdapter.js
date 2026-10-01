@@ -58,8 +58,6 @@ export function createFlowNodes(nodes, positions) {
       preview: getNodePreview(node),
       nodeType: node.type,
       accessible: node.accessible,
-      readOnly: node.readOnly,
-      ...(node.type === 'branch' ? { connectorType: node.data.connectorType } : {}),
     },
     ariaLabel: node.title,
     connectable: false,

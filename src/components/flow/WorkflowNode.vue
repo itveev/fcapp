@@ -13,7 +13,7 @@ const meta = computed(() => getNodeTypeMetadata(props.data.nodeType))
 </script>
 
 <template>
-  <article class="workflow-card" :class="{ 'is-selected': selected, 'is-readonly': data.readOnly }">
+  <article class="workflow-card" :class="{ 'is-selected': selected }">
     <Handle type="target" :position="Position.Top" :connectable="false" />
     <header>
       <NodeIcon :name="meta.icon" />

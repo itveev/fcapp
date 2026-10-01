@@ -1,35 +1,47 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { VueQueryPlugin } from '@tanstack/vue-query'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { beforeEach, describe, expect, it } from 'vitest'
-import { resetFlowApi } from '../api/flowApi'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import * as flowApi from '../api/flowApi'
 import { seed } from '../data/seed'
-import { createQueryClient } from '../queries/queryClient'
+import { FLOW_QUERY_KEY, createQueryClient, queryClientConfig } from '../queries/queryClient'
 import { routes } from '../router'
 import { useFlowStore } from '../stores/flowStore'
 import FlowView from './FlowView.vue'
 
-async function mountAt(path) {
-  resetFlowApi(seed)
+function queryClientWithoutRetry() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        ...queryClientConfig.defaultOptions.queries,
+        retry: false,
+      },
+    },
+  })
+}
+
+async function mountAt(path, { queryClient = createQueryClient(), attachTo } = {}) {
+  flowApi.resetFlowApi(seed)
   const pinia = createPinia()
   setActivePinia(pinia)
   const router = createRouter({ history: createMemoryHistory(), routes })
   await router.push(path)
   await router.isReady()
   const wrapper = mount(FlowView, {
+    ...(attachTo ? { attachTo } : {}),
     global: {
-      plugins: [pinia, [VueQueryPlugin, { queryClient: createQueryClient() }], router],
+      plugins: [pinia, [VueQueryPlugin, { queryClient }], router],
       stubs: { FlowCanvas: { template: '<div data-testid="canvas" />' } },
     },
   })
   await flushPromises()
-  return { wrapper, router, store: useFlowStore() }
+  return { wrapper, router, store: useFlowStore(), queryClient }
 }
 
 describe('FlowView drawer routing', () => {
   beforeEach(() => {
-    resetFlowApi(seed)
+    flowApi.resetFlowApi(seed)
   })
 
   it('opens the deep-linked node after hydration', async () => {
@@ -94,6 +106,68 @@ describe('FlowView drawer routing', () => {
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/')
     expect(wrapper.text()).not.toContain('Away Message')
+  })
+
+  it('shows a retry when the workflow has not loaded', async () => {
+    const fetchFlow = vi.spyOn(flowApi, 'fetchFlow').mockRejectedValue(new Error('offline'))
+    try {
+      const { wrapper } = await mountAt('/', { queryClient: queryClientWithoutRetry() })
+      expect(wrapper.text()).toContain("Couldn't load the workflow.")
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Retry')).toBe(true)
+      expect(wrapper.find('[data-testid="canvas"]').exists()).toBe(false)
+    } finally {
+      fetchFlow.mockRestore()
+    }
+  })
+
+  it('keeps the loaded workflow visible when a later refetch fails', async () => {
+    let fail = false
+    const original = flowApi.fetchFlow
+    const fetchFlow = vi.spyOn(flowApi, 'fetchFlow').mockImplementation(() => {
+      if (fail) return Promise.reject(new Error('offline'))
+      return original()
+    })
+    try {
+      const { wrapper, queryClient } = await mountAt('/nodes/b6a0c1', { queryClient: queryClientWithoutRetry() })
+      expect(wrapper.get('[data-testid="canvas"]').exists()).toBe(true)
+      fail = true
+      await expect(
+        queryClient.refetchQueries({ queryKey: FLOW_QUERY_KEY }, { throwOnError: true }),
+      ).rejects.toThrow('offline')
+      await flushPromises()
+      expect(wrapper.get('[data-testid="canvas"]').exists()).toBe(true)
+      expect(wrapper.text()).toContain('Away Message')
+      expect(wrapper.text()).not.toContain("Couldn't load the workflow.")
+    } finally {
+      fetchFlow.mockRestore()
+    }
+  })
+
+  it('closes the create dialog before the drawer on Escape', async () => {
+    const { wrapper, router } = await mountAt('/nodes/b6a0c1', { attachTo: document.body })
+    try {
+      const create = wrapper.findAll('button').find((button) => button.text() === 'Create New Node')
+      await create.trigger('click')
+      expect(wrapper.find('.modal').exists()).toBe(true)
+      expect(wrapper.find('.drawer').exists()).toBe(true)
+
+      wrapper.get('.modal input[name="title"]').element.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+      )
+      await flushPromises()
+      expect(wrapper.find('.modal').exists()).toBe(false)
+      expect(wrapper.find('.drawer').exists()).toBe(true)
+      expect(router.currentRoute.value.path).toBe('/nodes/b6a0c1')
+
+      wrapper.get('.drawer').element.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+      )
+      await flushPromises()
+      expect(wrapper.find('.drawer').exists()).toBe(false)
+      expect(router.currentRoute.value.path).toBe('/')
+    } finally {
+      wrapper.unmount()
+    }
   })
 
   it('creates a standalone node from the form', async () => {

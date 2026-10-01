@@ -13,7 +13,7 @@ describe('flow adapter', () => {
       type: 'workflowCard',
       draggable: true,
       connectable: false,
-      data: { title: 'Trigger', nodeType: 'trigger', accessible: true, readOnly: true, preview: 'Conversation Opened' },
+      data: { title: 'Trigger', nodeType: 'trigger', accessible: true, preview: 'Conversation Opened' },
     })
     expect(hours.data.times).toBeUndefined()
     expect(createFlowNodes(nodes, {}).find((node) => node.id === '161f52').type).toBe('branchPill')
@@ -25,7 +25,7 @@ describe('flow adapter', () => {
       draggable: true,
       selectable: true,
       focusable: true,
-      data: { accessible: true, readOnly: true },
+      data: { accessible: true },
     })
     expect(flowNodes.find((node) => node.id === 'b6a0c1')).toMatchObject({
       draggable: true,
@@ -36,12 +36,11 @@ describe('flow adapter', () => {
       draggable: false,
       selectable: false,
       focusable: false,
-      data: { connectorType: 'success', accessible: false },
+      data: { accessible: false },
     })
     expect(flowNodes.find((node) => node.id === '28c4b9')).toMatchObject({
       selectable: false,
       focusable: false,
-      data: { connectorType: 'failure' },
     })
   })
 

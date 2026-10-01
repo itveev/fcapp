@@ -16,7 +16,7 @@ const createSlot = ref(0)
 const { screenToFlowCoordinate, vueFlowRef } = useFlowViewport()
 
 const loading = computed(() => query.isPending.value && !query.data.value)
-const loadError = computed(() => query.isError.value)
+const loadError = computed(() => query.isLoadingError.value)
 const drawerOpen = computed(() => drawer.value.status === 'open')
 
 async function onCreate(input) {

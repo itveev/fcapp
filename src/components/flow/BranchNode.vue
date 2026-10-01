@@ -7,7 +7,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="branch-pill" :class="data.connectorType">
+  <div class="branch-pill">
     <Handle type="target" :position="Position.Top" :connectable="false" />
     <span>{{ data.title }}</span>
     <Handle type="source" :position="Position.Bottom" :connectable="false" />

@@ -43,7 +43,7 @@ function submit() {
 </script>
 
 <template>
-  <div class="modal-backdrop" @click.self="emit('close')" @keydown.esc="emit('close')">
+  <div class="modal-backdrop" @click.self="emit('close')">
     <form class="modal" role="dialog" aria-modal="true" aria-labelledby="create-title" @submit.prevent="submit">
       <h2 id="create-title">Create New Node</h2>
       <div class="field" :class="{ 'is-invalid': invalid('title') }">

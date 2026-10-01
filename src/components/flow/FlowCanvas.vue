@@ -24,22 +24,33 @@ function handleKeyDown(event) {
 
 // The drawer narrows the canvas. Recenter only when the active node no longer fits;
 // a node that is already visible keeps the user's viewport.
+function nodeSize(node, pane) {
+  const width = node.dimensions?.width
+  const height = node.dimensions?.height
+  if (width > 0 && height > 0) return { width, height }
+  const element = pane.querySelector(`.vue-flow__node[data-id="${CSS.escape(node.id)}"]`)
+  if (element?.offsetWidth > 0 && element?.offsetHeight > 0) {
+    return { width: element.offsetWidth, height: element.offsetHeight }
+  }
+  return null
+}
+
 function revealNode(nodeId) {
   const node = findNode(nodeId)
   const pane = vueFlowRef.value
   if (!node || !pane) return
+  const size = nodeSize(node, pane)
+  if (!size) return
   const rect = pane.getBoundingClientRect()
-  const width = node.dimensions?.width || 220
-  const height = node.dimensions?.height || 80
   const topLeft = flowToScreenCoordinate({ x: node.position.x, y: node.position.y })
   const visible = isNodeVisible({
     topLeft,
-    size: { width, height },
+    size,
     zoom: getViewport().zoom,
     bounds: rect,
   })
   if (visible) return
-  setCenter(node.position.x + width / 2, node.position.y + height / 2, {
+  setCenter(node.position.x + size.width / 2, node.position.y + size.height / 2, {
     duration: 200,
     zoom: getViewport().zoom,
   })
@@ -48,7 +59,7 @@ function revealNode(nodeId) {
 watch(() => route.params.nodeId, async (nodeId) => {
   if (typeof nodeId !== 'string' || !nodeId) return
   await nextTick()
-  window.setTimeout(() => revealNode(nodeId), 220)
+  revealNode(nodeId)
 })
 </script>
 
